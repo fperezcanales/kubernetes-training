@@ -52,8 +52,16 @@ kubectl config view --minify | grep namespace:
 ```
 
 ## Namespaces and DNS
+Cuando crea un Servicio, crea una entrada DNS correpondiente. Esta entrada tiene formato `<service-name>.<namespace>.svc.cluster.local`, lo que significa que si un contenedor solo usa `<service-name>` se resolvera en el servicio que es local para un espacio de nombres. Esto es util para usar la misma configuracion en varios espacios de nombres, como Develop, Staging, Production. Si desea llegar a traves de espacios de nombre, debe usar el nombre de dominio completo (FQDN).
 
-## Not All Objects are in a Namespace 
+Como resultado, todos los nombres de espacios de nombres deben ser equiquetas DNS RFC 1123 validas.
+
+> **Warning**: Al crear espacios de nombres con el mismo nombre que los dominios públicos de nivel superior, los servicios en estos espacios de nombres pueden tener nombres de DNS cortos que se superponen con los registros de DNS públicos. Las cargas de trabajo de cualquier espacio de nombres que realice una búsqueda de DNS sin un punto final se redirigirán a esos servicios, teniendo prioridad sobre el DNS público.
+
+Para mitigar esto, limite los privilegios para crear espacios de nombres a usuarios de confianza. Si es necesario, también puede configurar controles de seguridad de terceros, como webhooks de admisión, para bloquear la creación de cualquier espacio de nombres con el nombre de TLD públicos.
+
+
+## Not All Objects are in a Namespace  
 Most Kubernetes resources (e.g. pods, services, replication controllers, and others) are in some namespaces. However namespace resources are not themselves in a namespace. And low-level resources, such as nodes and persistentVolumes, are not in any namespace.
 
 To see which Kubernetes resources are and aren't in a namespace:
